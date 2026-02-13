@@ -51,6 +51,14 @@
         echo fToJson(["error" => "database_error", "details"=>"failed to connect to database"]);
         exit;
     }
+
+    function resetAccessToken() {
+        setcookie(
+            "access_token",
+            "", time()-9999, "/"
+        );            
+        $_SESSION['access_token'] = null;
+    }
     
     function validUserAndGetDB() {
         $db = getDataBase();
@@ -82,11 +90,7 @@
                 exit;
             }
             
-            setcookie(
-                "access_token",
-                "", time()-9999, "/"
-            );            
-            $_SESSION['access_token'] = null;
+            resetAccessToken();
         }
 
         // trap
@@ -94,4 +98,5 @@
         http_response_code(500);
         exit;
     }
+
 ?>

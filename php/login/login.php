@@ -2,6 +2,8 @@
 require_once "../include.php";
 
 if (isset($_POST['login'])) {
+    usleep(rand(500, 1000) * 1000);
+    resetAccessToken();
     $login = json_decode($_POST['login'], true);
     $email = $login[0];
     $password = $login[1];
