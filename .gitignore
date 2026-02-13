@@ -1,11 +1,10 @@
 .DS_Store
 node_modules
-/dist
+mensageiro/dist
 
 
 # local env files
-.env.local
-.env.*.local
+.env.*
 .env
 
 # Log files

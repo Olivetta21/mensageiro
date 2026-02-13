@@ -16,8 +16,7 @@ export async function fetchJson(endereco, arrayValores) {
         }
         
         
-        //const dest_api = "http://mensageiro.serv";
-        const dest_api = "";
+        const dest_api = process.env.VUE_APP_BACKEND_ADDRESS;
 
         const response = await fetch(dest_api + endereco, {
             method: 'POST',
