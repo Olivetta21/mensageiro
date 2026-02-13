@@ -33,6 +33,7 @@
         return bin2hex(random_bytes(64));
     }
 
+
     function getDataBase() {
         
         $host = $_ENV['DB_HOST'];
@@ -47,25 +48,25 @@
 
         }
 
-        echo fToJson(["error" => "erro na conexão do banco de dados"]);
+        echo fToJson(["error" => "database_error", "details"=>"failed to connect to database"]);
         exit;
     }
-
-    function validUserAndGetDB(){
+    
+    function validUserAndGetDB() {
         $db = getDataBase();
 
         if (!isset($_SESSION['access_token'])) {
             if (!isset($_COOKIE['access_token']) || empty($_COOKIE['access_token'])) {
-                echo fToJson(["error" => "need_login"]);
+                echo fToJson(["error" => "need_login", "details"=>"no token in session or cookie"]);
                 exit;
             }
             $_SESSION['access_token'] = $_COOKIE['access_token'];
         }
 
-        $access_token = $_SESSION['access_token'] ?? null;
+        $access_token = $_SESSION['access_token'];
 
         if ($access_token) {
-            $sql = "SELECT user_id from access_tokens WHERE token = :token AND expires_at > NOW()";
+            $sql = "SELECT user_id, trunc(EXTRACT(EPOCH FROM (expires_at - NOW()))) AS expires_in FROM access_tokens WHERE token = :token AND expires_at > NOW()";
             try {
                 $stmt = $db->prepare($sql);
                 $stmt->bindParam(':token', $access_token, PDO::PARAM_STR);
@@ -73,14 +74,19 @@
                 $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if ($result) {
-                    return ["db"=>$db, "user_id"=>$result['user_id']];
+                    return ["db"=>$db, "user_id"=>$result['user_id'], "expires_in"=>$result['expires_in']];
                 }
 
             } catch (Exception) {
-                echo fToJson(["error" => "database_error"]);
+                echo fToJson(["error" => "database_error", "details"=>"failed to fetch user"]);
                 exit;
             }
-
+            
+            setcookie(
+                "access_token",
+                "", time()-9999, "/"
+            );            
+            $_SESSION['access_token'] = null;
         }
 
         // trap

@@ -40,7 +40,7 @@ create table messages (
     created_at timestamp default current_timestamp
 );
   -- Group Messages
-create table group (
+create table group_linked (
     id serial primary key,
     name varchar(255) not null,
     created_at timestamp default current_timestamp
@@ -48,14 +48,14 @@ create table group (
 
 create table group_members (
     id serial primary key,
-    group_id integer references group(id),
+    group_id integer references group_linked(id),
     user_id integer references users(id),
     created_at timestamp default current_timestamp
 );
 
 create table group_messages (
     id serial primary key,
-    group_id integer references group(id),
+    group_id integer references group_linked(id),
     sender_id integer references users(id),
     content text not null,
     created_at timestamp default current_timestamp
